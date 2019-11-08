@@ -72,9 +72,10 @@ def relink_technosphere_exchanges(ds, data, exclusive=True,
                 if ds['location'] == loc]
 
         if kept:
-            missing_faces = geomatcher[ds['location']].difference(
-                set.union(*[geomatcher[obj['location']] for obj in kept])
-            )
+            with resolved_row(possible_locations, geomatcher) as g:
+                missing_faces = geomatcher[ds['location']].difference(
+                    set.union(*[geomatcher[obj['location']] for obj in kept])
+                )
             if missing_faces and "RoW" in possible_locations:
                 kept.extend([obj for obj in possible_datasets if obj['location'] == 'RoW'])
         elif 'RoW' in possible_locations:
