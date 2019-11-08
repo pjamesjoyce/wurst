@@ -30,7 +30,7 @@ def copy_to_new_location(ds, location):
 
 
 def relink_technosphere_exchanges(ds, data, exclusive=True,
-        drop_invalid=False, biggest_first=False, contained=True):
+        drop_invalid=False, biggest_first=False, contained=True, exclude = None):
     """Find new technosphere providers based on the location of the dataset.
 
     Designed to be used when the dataset's location changes, or when new datasets are added.
@@ -53,6 +53,7 @@ def relink_technosphere_exchanges(ds, data, exclusive=True,
         * ``drop_invalid``: Bool, default is ``False``. Delete exchanges for which no valid provider is available.
         * ``biggest_first``: Bool, default is ``False``. Determines search order when selecting provider locations. Only relevant is ``exclusive`` is ``True``.
         * ``contained``: Bool, default is ``True``. If ture, only use providers whose location is completely within the ``ds`` location; otherwise use all intersecting locations.
+        * ``exclude``: TODO: write this
 
     Modifies the dataset in place; returns the modified dataset."""
     MESSAGE = "Relinked technosphere exchange of {}/{}/{} from {}/{} to {}/{}."
@@ -63,6 +64,8 @@ def relink_technosphere_exchanges(ds, data, exclusive=True,
     for exc in filter(technosphere, ds['exchanges']):
         possible_datasets = list(get_possibles(exc, data))
         possible_locations = [obj['location'] for obj in possible_datasets]
+        if exclude:
+            possible_locations = [x for x in possible_locations if x not in exclude]
         with resolved_row(possible_locations, geomatcher) as g:
             func = g.contained if contained else g.intersects
             gis_match = func(ds['location'], include_self=True, exclusive=exclusive,
@@ -120,6 +123,9 @@ def allocate_inputs(exc, lst):
     """Allocate the input exchanges in ``lst`` to ``exc``, using production volumes where possible, and equal splitting otherwise.
 
     Always uses equal splitting if ``RoW`` is present."""
+
+    MESSAGE = "Changed technosphere exchange of {}/{} to {}/{}."
+
     has_row = any((x['location'] in ('RoW', 'GLO') for x in lst))
     pvs = [reference_product(o).get('production volume') or 0 for o in lst]
     if all((x > 0 for x in pvs)) and not has_row:
@@ -130,21 +136,49 @@ def allocate_inputs(exc, lst):
         total = len(lst)
         pvs = [1 for _ in range(total)]
 
-    def new_exchange(exc, location, factor):
+    def new_exchange(exc, obj, factor):
         cp = deepcopy(exc)
-        cp['location'] = location
+
+        if cp['name'] != obj['name']:
+            log({
+                'function':'allocate_inputs',
+                'message': MESSAGE.format(
+                    cp['name'], cp['location'],
+                    obj['name'], obj['location']
+                )
+            }, cp)
+            
+            cp['name'] = obj['name']
+
+        cp['location'] = obj['location']
+
+        
+
+
+
         return rescale_exchange(cp, factor)
 
     return [
-        new_exchange(exc, obj['location'], factor / total)
+        new_exchange(exc, obj, factor / total)
         for obj, factor in zip(lst, pvs)
     ]
 
 
 def get_possibles(exchange, data):
-    """FIlter a list of datasets ``data``, returning those with the save name, reference product, and unit as in ``exchange``.
+    """Filter a list of datasets ``data``, returning those with the same name, reference product, and unit as in ``exchange``.
 
     Returns a generator."""
+
+    market_name = exchange['name']
+    if market_name.startswith('market group'):
+        market_name = 'market' + market_name[len('market group'):]
+            
+    if market_name != exchange['name']:
+        key = (market_name, exchange['product'], exchange['unit'])
+        for ds in data:
+            if (ds['name'], ds['reference product'], ds['unit']) == key:
+                yield ds
+
     key = (exchange['name'], exchange['product'], exchange['unit'])
     for ds in data:
         if (ds['name'], ds['reference product'], ds['unit']) == key:
