@@ -28,12 +28,14 @@ def test_copy_to_new_location():
 
 def test_allocate_inputs_equal():
     given = [{
+        'name': 'exchange1',
         'location': 'here',
         'exchanges': [{
             'type': 'production',
             'amount': 1,
         }],
     }, {
+        'name': 'exchange1',
         'location': 'there',
         'exchanges': [{
             'type': 'production',
@@ -41,23 +43,32 @@ def test_allocate_inputs_equal():
             'amount': 1,
         }],
     }]
-    exc = {'amount': 1}
+    exc = {
+        'name':'exchange1',
+        'amount': 1
+        }
     expected = [{
+        'name': 'exchange1',
         'location': 'here',
         'amount': 0.5,
         'loc': 0.5,
         'uncertainty type': 0,
     }, {
+        'name': 'exchange1',
         'location': 'there',
         'amount': 0.5,
         'loc': 0.5,
         'uncertainty type': 0,
     }]
     assert allocate_inputs(exc, given) == expected
-    assert exc == {'amount': 1}
+    assert exc == {
+        'name':'exchange1',
+        'amount': 1
+        }
 
 def test_allocate_inputs_equal_row():
     given = [{
+        'name': 'exchange1',
         'location': 'RoW',
         'exchanges': [{
             'type': 'production',
@@ -65,6 +76,7 @@ def test_allocate_inputs_equal_row():
             'amount': 1,
         }],
     }, {
+        'name': 'exchange1',
         'location': 'there',
         'exchanges': [{
             'type': 'production',
@@ -72,23 +84,32 @@ def test_allocate_inputs_equal_row():
             'amount': 1,
         }],
     }]
-    exc = {'amount': 3}
+    exc = {
+        'name': 'exchange1',
+        'amount': 3
+        }
     expected = [{
+        'name': 'exchange1',
         'location': 'RoW',
         'amount': 1.5,
         'loc': 1.5,
         'uncertainty type': 0,
     }, {
+        'name': 'exchange1',
         'location': 'there',
         'amount': 1.5,
         'loc': 1.5,
         'uncertainty type': 0,
     }]
     assert allocate_inputs(exc, given) == expected
-    assert exc == {'amount': 3}
+    assert exc == {
+        'name': 'exchange1',
+        'amount': 3
+        }
 
 def test_allocate_inputs_pv():
     given = [{
+        'name': 'exchange1',
         'location': 'there',
         'exchanges': [{
             'type': 'production',
@@ -96,6 +117,7 @@ def test_allocate_inputs_pv():
             'amount': 1,
         }],
     }, {
+        'name': 'exchange1',
         'location': 'there',
         'exchanges': [{
             'type': 'production',
@@ -103,20 +125,28 @@ def test_allocate_inputs_pv():
             'amount': 1,
         }],
     }]
-    exc = {'amount': 2}
+    exc = {
+        'name': 'exchange1',
+        'amount': 2
+        }
     expected = [{
+        'name': 'exchange1',
         'location': 'there',
         'amount': 1.5,
         'loc': 1.5,
         'uncertainty type': 0,
     }, {
+        'name': 'exchange1',
         'location': 'there',
         'amount': 0.5,
         'loc': 0.5,
         'uncertainty type': 0,
     }]
     assert allocate_inputs(exc, given) == expected
-    assert exc == {'amount': 2}
+    assert exc == {
+        'name': 'exchange1',
+        'amount': 2
+        }
 
 def test_get_possibles():
     exc = {

@@ -97,7 +97,8 @@ def relink_technosphere_exchanges(ds, data, exclusive=True,
                 }, ds)
                 continue
             else:
-                raise InvalidLink
+                print("technosphere exchange of {}/{}/{}; no valid providers.".format(exc['name'], exc['product'], exc['unit']))
+                raise InvalidLink 
 
         allocated = allocate_inputs(exc, kept)
 
@@ -123,7 +124,6 @@ def allocate_inputs(exc, lst):
     """Allocate the input exchanges in ``lst`` to ``exc``, using production volumes where possible, and equal splitting otherwise.
 
     Always uses equal splitting if ``RoW`` is present."""
-
     MESSAGE = "Changed technosphere exchange of {}/{} to {}/{}."
 
     has_row = any((x['location'] in ('RoW', 'GLO') for x in lst))
@@ -178,8 +178,11 @@ def get_possibles(exchange, data):
         for ds in data:
             if (ds['name'], ds['reference product'], ds['unit']) == key:
                 yield ds
-
-    key = (exchange['name'], exchange['product'], exchange['unit'])
+    try:
+        key = (exchange['name'], exchange['product'], exchange['unit'])
+    except KeyError:
+        print(exchange)
+        assert 0
     for ds in data:
         if (ds['name'], ds['reference product'], ds['unit']) == key:
             yield ds
