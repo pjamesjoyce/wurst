@@ -22,7 +22,6 @@ setup(
     author_email="cmutel@gmail.com",
     license="BSD 3-clause",
     package_data={'wurst': [
-        "IMAGE/metadata/*.*",
     ]},
     install_requires=[
         "appdirs",
