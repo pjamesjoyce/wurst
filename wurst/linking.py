@@ -12,7 +12,7 @@ def link_internal(data, fields=('name', 'product', 'location', 'unit')):
     get_tuple = lambda exc: tuple([exc[f] for f in fields])
     products = {
         get_tuple(reference_product(ds)): (ds['database'], ds['code'])
-        for ds in data
+        for ds in data if ds.get('type') != 'emission'
     }
 
     for ds in data:
