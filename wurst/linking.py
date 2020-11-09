@@ -51,6 +51,9 @@ def change_db_name(data, name):
         for exc in ds['exchanges']:
             if exc.get('input') and exc['input'][0] in old_names:
                 exc['input'] = (name, exc['input'][1])
+            elif exc['type'] != 'biosphere':
+                pass
+                #print('not doing anything to {}'.format(exc))
     return data
 
 

@@ -84,7 +84,7 @@ def add_input_info_for_indigenous_exchanges(activities, names):
             exc['product'] = obj['reference product']
             exc['name'] = obj['name']
             exc['unit'] = obj['unit']
-            exc['location'] = obj['location']
+            exc['location'] = obj.get('location', 'GLO') # set exchanges with undefined locations to GLO
             if exc['type'] == 'biosphere':
                 exc['categories'] = obj['categories']
             exc.pop('input')
